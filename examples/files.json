@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "path": "/binary.bin",
+      "type": "file",
+      "encoding": "base64",
+      "content": "AP8="
+    },
+    {
+      "path": "/hello.txt",
+      "type": "file",
+      "content": "hello\n"
+    }
+  ]
+}

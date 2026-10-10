@@ -1,0 +1,36 @@
+{
+  "nodes": [
+    {
+      "path": "/docs",
+      "type": "dir"
+    },
+    {
+      "path": "/empty",
+      "type": "dir"
+    },
+    {
+      "path": "/docs/a",
+      "type": "dir"
+    },
+    {
+      "path": "/docs/a/b",
+      "type": "dir"
+    },
+    {
+      "path": "/docs/a/b/c.txt",
+      "type": "file",
+      "content": "deep\n"
+    },
+    {
+      "path": "/docs/notes.txt",
+      "type": "file",
+      "content": "first\nsecond\nthird\n"
+    },
+    {
+      "path": "/binary.bin",
+      "type": "file",
+      "encoding": "base64",
+      "content": "AP8="
+    }
+  ]
+}

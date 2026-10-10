@@ -1,0 +1,6 @@
+# Намеренные ошибки; выполнение продолжается
+unknown
+ls a b
+cd -bad
+exit extra
+exit
