@@ -3,6 +3,7 @@ import sys
 from shell import Shell
 from config import arguments, run_script
 from vfs import VFS
+from commands import install as install_commands
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
         return 1
     shell = Shell(vfs)
     print(f"Загружено узлов VFS: {len(vfs.nodes)}")
+    install_commands(shell)
     success = True
     if args.script:
         success = run_script(shell, args.script)

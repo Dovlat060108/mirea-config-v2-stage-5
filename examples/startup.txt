@@ -2,4 +2,15 @@
 ls
 cd /docs
 ls
+cd a/b
+ls .
+cd ..
+cd
+ls /docs/notes.txt
+tac /docs/notes.txt /docs/a/b/c.txt
+date
+date +%Y-%m-%d
+find
+find /docs -name *.txt
+ls /empty
 exit

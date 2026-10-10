@@ -3,4 +3,10 @@ unknown
 ls a b
 cd -bad
 exit extra
+ls /missing
+cd /binary.bin
+tac /binary.bin
+tac
+date invalid
+find / -bad *.txt
 exit

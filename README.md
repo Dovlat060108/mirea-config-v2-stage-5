@@ -1,16 +1,16 @@
-# Практическая работа №1. Этап 3: VFS
+# Практическая работа №1. Этап 4: Основные команды
 
 **Дисциплина:** Конфигурационное управление  
 **Студент:** Алиев Довлат Фазильевич  
 **Группа:** ИКБО-62-25  
 **Вариант:** 2  
-**Репозиторий:** https://github.com/Dovlat060108/mirea-config-v2-stage-3  
-**Ветка этапа:** `stage-3`
+**Репозиторий:** https://github.com/Dovlat060108/mirea-config-v2-stage-4  
+**Ветка этапа:** `stage-4`
 
 ## Общее описание
 
 Консольный эмулятор UNIX-подобной оболочки на Python 3.10+.
-Эта версия включает этапы 1-3. Внешние библиотеки не нужны.
+Эта версия включает этапы 1-4. Внешние библиотеки не нужны.
 Приглашение использует имя пользователя и имя компьютера реальной ОС.
 Парсер разделяет ввод по пробельным символам. Кавычки, конвейеры,
 перенаправления и раскрытие переменных окружения не поддерживаются.
@@ -21,6 +21,7 @@
 1. REPL, парсер, приглашение ОС, заглушки ls/cd, exit и ошибки.
 2. Параметры запуска, отладочный вывод, скрипты и комментарии #.
 3. Загрузка JSON VFS и base64 в память, проверка формата и путей.
+4. Рабочие ls, cd, tac, date и find.
 
 ## Сборка, запуск и тестирование
 
@@ -91,7 +92,30 @@ sh scripts/demo-vfs.sh
 ## Команды и примеры
 
 - `exit`: завершить сеанс; аргументы запрещены.
-- `ls [путь]`, `cd [путь]`: заглушки; печатают имя и список аргументов.
+- `ls [путь]`: отсортированные прямые дети каталога или имя файла.
+- `cd [каталог]`: переход в каталог; без аргумента переход в /.
+- `tac файл [файл ...]`: строки каждого UTF-8 файла в обратном порядке.
+- `date [+формат]`: местные дата/время ОС; формат Python strftime.
+- `find [путь] [-name шаблон]`: рекурсивный поиск, включая исходный узел;
+  -name фильтрует имя по шаблону *, ? и []. По умолчанию путь равен .
+
+Поддержаны абсолютные и относительные пути, . и ..; переход выше /
+оставляет пользователя в корне. tac выводит строки с обычным переводом
+строки; побайтовое поведение GNU tac для файлов без конечного переноса
+не воспроизводится. Другие параметры UNIX-команд не поддерживаются.
+
+```text
+ls /docs
+a
+notes.txt
+tac /docs/notes.txt
+third
+second
+first
+find /docs -name *.txt
+/docs/a/b/c.txt
+/docs/notes.txt
+```
 
 ## Демонстрация ошибок
 
@@ -107,11 +131,19 @@ exit extra
 
 ## Проверка
 
-При подготовке выполнено 14 автоматических тестов; все прошли.
+При подготовке выполнено 20 автоматических тестов; все прошли.
 Тесты проверяют результаты команд, неверные аргументы и обработку ошибок.
 
 ## Функции исходного кода
 
+- `commands.require_count`: Validate argument count and reject unsupported options.
+- `Commands.__init__`: Keep references to shell state and the loaded VFS.
+- `Commands.ls`: List directory children or the supplied file name.
+- `Commands.cd`: Change directory; no arguments return to the VFS root.
+- `Commands.tac`: Concatenate files with their line order reversed per file.
+- `Commands.date`: Show local OS date/time or one strftime format with + prefix.
+- `Commands.find`: Recursively list paths, optionally filtering by -name glob.
+- `commands.install`: Register the five fully implemented stage-four commands.
 - `config.arguments`: Parse VFS/script locations and an optional noninteractive mode.
 - `config.run_script`: Echo script commands, skip Python comments, report each error.
 - `main.main`: Initialize and run the current stage.
