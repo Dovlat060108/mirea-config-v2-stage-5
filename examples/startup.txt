@@ -13,4 +13,15 @@ date +%Y-%m-%d
 find
 find /docs -name *.txt
 ls /empty
+touch /new.txt /empty/another.txt
+touch /docs/notes.txt
+mv /new.txt /renamed.txt
+mv /renamed.txt /empty
+touch /target.txt
+mv /empty/renamed.txt /target.txt
+cd /docs/a/b
+mv /docs/a /empty
+ls
+cd
+find /
 exit

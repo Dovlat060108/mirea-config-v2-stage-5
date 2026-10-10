@@ -93,3 +93,32 @@ class VFS:
             raise ValueError(f"не файл: {path}")
         return node["content"].decode("utf-8")
 
+    def touch(self, path):
+        """Create an empty file or update an existing node timestamp."""
+        if path not in self.nodes:
+            self.directory(posixpath.dirname(path))
+            self.nodes[path] = {"type": "file", "content": b""}
+        self.nodes[path]["mtime"] = time.time()
+
+    def move(self, source, target):
+        """Move/rename a subtree; overwrite files, never directories."""
+        node = self.node(source)
+        if source == "/":
+            raise ValueError("нельзя переместить корень")
+        if target in self.nodes and self.nodes[target]["type"] == "dir":
+            target = posixpath.join(target, posixpath.basename(source))
+        if source == target:
+            return target
+        if target.startswith(source + "/"):
+            raise ValueError("нельзя переместить каталог внутрь себя")
+        self.directory(posixpath.dirname(target))
+        if target in self.nodes:
+            if node["type"] == "dir" or self.nodes[target]["type"] == "dir":
+                raise ValueError("нельзя заменить каталог")
+        moved = {name: value for name, value in self.nodes.items()
+                 if name == source or name.startswith(source + "/")}
+        for name in moved:
+            del self.nodes[name]
+        for name, value in moved.items():
+            self.nodes[target + name[len(source):]] = value
+        return target

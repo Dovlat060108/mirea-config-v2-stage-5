@@ -9,4 +9,9 @@ tac /binary.bin
 tac
 date invalid
 find / -bad *.txt
+touch /missing/file
+mv /docs /docs/a
+mv / /renamed
+mv one
+touch
 exit

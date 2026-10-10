@@ -1,16 +1,16 @@
-# Практическая работа №1. Этап 4: Основные команды
+# Практическая работа №1. Этап 5: Дополнительные команды
 
 **Дисциплина:** Конфигурационное управление  
 **Студент:** Алиев Довлат Фазильевич  
 **Группа:** ИКБО-62-25  
 **Вариант:** 2  
-**Репозиторий:** https://github.com/Dovlat060108/mirea-config-v2-stage-4  
-**Ветка этапа:** `stage-4`
+**Репозиторий:** https://github.com/Dovlat060108/mirea-config-v2-stage-5  
+**Ветка этапа:** `stage-5`
 
 ## Общее описание
 
 Консольный эмулятор UNIX-подобной оболочки на Python 3.10+.
-Эта версия включает этапы 1-4. Внешние библиотеки не нужны.
+Эта версия включает этапы 1-5. Внешние библиотеки не нужны.
 Приглашение использует имя пользователя и имя компьютера реальной ОС.
 Парсер разделяет ввод по пробельным символам. Кавычки, конвейеры,
 перенаправления и раскрытие переменных окружения не поддерживаются.
@@ -22,6 +22,7 @@
 2. Параметры запуска, отладочный вывод, скрипты и комментарии #.
 3. Загрузка JSON VFS и base64 в память, проверка формата и путей.
 4. Рабочие ls, cd, tac, date и find.
+5. mv и touch: изменение файлов и каталогов только в памяти.
 
 ## Сборка, запуск и тестирование
 
@@ -117,6 +118,20 @@ find /docs -name *.txt
 /docs/notes.txt
 ```
 
+- `touch файл [файл ...]`: создать пустые файлы или обновить mtime
+  существующих узлов; содержимое сохраняется, родители должны существовать.
+- `mv источник назначение`: переименовать файл/каталог или переместить
+  в существующий каталог. Файл назначения может быть перезаписан.
+  Замена каталогов, перенос корня и перенос каталога внутрь себя запрещены.
+  Если перемещается текущий каталог или его предок, cwd обновляется.
+
+```text
+touch /new.txt
+mv /new.txt /empty
+ls /empty
+new.txt
+```
+
 ## Демонстрация ошибок
 
 ```text
@@ -131,8 +146,9 @@ exit extra
 
 ## Проверка
 
-При подготовке выполнено 20 автоматических тестов; все прошли.
+При подготовке выполнено 25 автоматических тестов; все прошли.
 Тесты проверяют результаты команд, неверные аргументы и обработку ошибок.
+Отдельный тест сравнивает JSON до/после mv и touch и проверяет повторную загрузку.
 
 ## Функции исходного кода
 
@@ -147,6 +163,10 @@ exit extra
 - `config.arguments`: Parse VFS/script locations and an optional noninteractive mode.
 - `config.run_script`: Echo script commands, skip Python comments, report each error.
 - `main.main`: Initialize and run the current stage.
+- `Mutations.__init__`: Bind the shell and its VFS.
+- `Mutations.touch`: Create or timestamp one or more files, requiring parents.
+- `Mutations.mv`: Move one file or directory, updating cwd if its parent moves.
+- `mutations.install`: Register mv and touch.
 - `shell.parse`: Split a command by whitespace, without quotes or expansion.
 - `Shell.__init__`: Register the commands provided by the current stage.
 - `Shell.prompt`: Use the actual OS username and hostname in the prompt.
@@ -163,6 +183,8 @@ exit extra
 - `VFS.directory`: Require an existing directory.
 - `VFS.children`: List sorted direct children only.
 - `VFS.text`: Read a UTF-8 file; binary and directory input are errors.
+- `VFS.touch`: Create an empty file or update an existing node timestamp.
+- `VFS.move`: Move/rename a subtree; overwrite files, never directories.
 
 ## Структура
 
