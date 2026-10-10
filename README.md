@@ -1,68 +1,96 @@
-# Практическая работа №1. Этап 5: Дополнительные команды
+# Эмулятор оболочки, вариант 2
 
-**Дисциплина:** Конфигурационное управление  
-**Студент:** Алиев Довлат Фазильевич  
-**Группа:** ИКБО-62-25  
-**Вариант:** 2  
-**Репозиторий:** https://github.com/Dovlat060108/mirea-config-v2-stage-5  
-**Ветка этапа:** `stage-5`
+Практическая работа №1 по конфигурационному управлению.
+Алиев Довлат Фазильевич, группа ИКБО-62-25.
+Репозиторий: https://github.com/Dovlat060108/mirea-config-v2-stage-5
+Ветка итогового этапа: `stage-5`.
 
-## Общее описание
+Консольный эмулятор UNIX-подобной оболочки на Python.
+Реализованы все пять этапов. Виртуальная файловая система (VFS)
+хранится в памяти, команды не изменяют файлы реальной ОС.
 
-Консольный эмулятор UNIX-подобной оболочки на Python 3.10+.
-Эта версия включает этапы 1-5. Внешние библиотеки не нужны.
-Приглашение использует имя пользователя и имя компьютера реальной ОС.
-Парсер разделяет ввод по пробельным символам. Кавычки, конвейеры,
-перенаправления и раскрытие переменных окружения не поддерживаются.
-Команды эмулятора не запускают программы реальной ОС.
+## Запуск
 
-## Реализованные этапы
-
-1. REPL, парсер, приглашение ОС, заглушки ls/cd, exit и ошибки.
-2. Параметры запуска, отладочный вывод, скрипты и комментарии #.
-3. Загрузка JSON VFS и base64 в память, проверка формата и путей.
-4. Рабочие ls, cd, tac, date и find.
-5. mv и touch: изменение файлов и каталогов только в памяти.
-
-## Сборка, запуск и тестирование
-
-Отдельная сборка не требуется: Python исполняет исходный код.
-Все команды запускаются из корня репозитория.
+Нужен Python 3.10+. Дополнительных библиотек и сборки нет.
+Команды выполняются из папки проекта.
 
 ```sh
-python3 --version
 sh run.sh
-make test
-# Равнозначный запуск тестов без make:
-PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-Windows: `run.bat`; тесты: `set PYTHONPATH=src`, затем
-`python -m unittest discover -s tests -v`.
-
+Запуск с VFS и стартовым скриптом, без интерактивного ввода:
 
 ```sh
 sh run.sh --vfs examples/vfs.json --script examples/startup.txt --no-repl
-sh scripts/demo-config.sh
-sh scripts/demo-errors.sh
 ```
 
-## Настройки и стартовый скрипт
+В Windows используется `run.bat` с теми же параметрами.
+Прямой запуск без скрипта: `python3 src/main.py`.
 
-- `--vfs ПУТЬ`: JSON-файл VFS; по умолчанию `examples/vfs.json`.
-- `--script ПУТЬ`: UTF-8 файл команд; по умолчанию не задан.
-- `--no-repl`: завершение после стартового скрипта без интерактивного ввода.
-- `--help`: справка по параметрам командной строки.
+## Параметры
 
-При запуске выводятся все заданные параметры. В скрипте поддержаны
-отдельные и встроенные комментарии Python: текст после # игнорируется.
-Ввод каждой команды выводится вместе с приглашением, затем выводится ответ.
-При ошибке показываются сообщение, имя скрипта и номер строки.
-Выполнение продолжается; итоговый код возврата равен 1 при любой ошибке.
-Команда exit останавливает скрипт и REPL. Успешный запуск возвращает 0.
+| Параметр | Назначение |
+| --- | --- |
+| `--vfs ПУТЬ` | JSON-файл VFS, по умолчанию `examples/vfs.json` |
+| `--script ПУТЬ` | Стартовый скрипт в UTF-8, по умолчанию не задан |
+| `--no-repl` | Завершить работу после скрипта без интерактивного ввода |
+| `--help` | Показать справку |
 
+При запуске выводятся все параметры. Стартовый скрипт выполняет
+команды по строкам и показывает ввод и вывод. Текст после `#`
+считается комментарием. Ошибка содержит путь скрипта и номер строки;
+выполнение продолжается, итоговый код возврата будет 1. При успехе - 0.
+`exit` завершает скрипт и оболочку.
 
-## Формат виртуальной файловой системы
+Парсер разделяет строку по пробельным символам. Кавычки, переменные
+окружения, конвейеры и перенаправления не поддерживаются.
+Приглашение имеет вид `username@hostname:путь$`: имя пользователя
+и имя компьютера берутся из ОС, путь относится к VFS.
+
+## Команды
+
+| Команда | Действие |
+| --- | --- |
+| `ls [путь]` | Список содержимого каталога или имя файла |
+| `cd [каталог]` | Перейти в каталог, без аргумента - в `/` |
+| `tac файл [файл ...]` | Вывести строки каждого UTF-8 файла в обратном порядке |
+| `date [+формат]` | Дата и время ОС, необязательный формат `strftime` |
+| `find [путь] [-name шаблон]` | Найти узлы рекурсивно, путь по умолчанию - `.` |
+| `mv источник назначение` | Переименовать или переместить файл/каталог |
+| `touch файл [файл ...]` | Создать пустые файлы или обновить время изменения |
+| `exit` | Завершить программу, аргументы не принимаются |
+
+Поддерживаются абсолютные и относительные пути, `.` и `..`.
+`ls` сортирует имена. `find` включает исходный узел и понимает шаблоны
+`*`, `?`, `[]` после `-name`. Другие параметры UNIX-команд не реализованы.
+`touch` сохраняет содержимое существующего файла; родители должны
+существовать. `mv` может заменить файл и перенести узел в каталог.
+Перенос корня, замена каталогов и перенос каталога внутрь себя запрещены.
+При переносе текущего каталога обновляется путь в приглашении.
+`tac` выводит строки с обычным переводом строки.
+
+Пример ручного ввода после запуска с `examples/vfs.json`:
+
+```text
+ls
+cd /docs
+tac notes.txt
+date +%Y-%m-%d
+find /docs -name *.txt
+touch /new.txt
+mv /new.txt /empty
+ls /empty
+unknown
+exit extra
+exit
+```
+
+Последние две команды перед `exit` показывают обработку ошибок:
+неизвестной команды и неверных аргументов.
+
+## VFS
+
+VFS загружается из JSON в память. Пример:
 
 ```json
 {
@@ -75,125 +103,63 @@ sh scripts/demo-errors.sh
 }
 ```
 
-Корневой каталог / создаётся автоматически и не записывается в nodes.
-Все пути абсолютные и уникальные; родитель файла должен быть каталогом.
-Порядок узлов произвольный. encoding: utf-8 (по умолчанию) или base64.
-Пустое содержимое файла допустимо. Поле content хранит строку.
-Загрузка полностью выполняется в памяти, исходный JSON не изменяется.
-При перезапуске все изменения VFS исчезают. Символические ссылки и
-права доступа не моделируются. Нет распаковки и записи в реальную ФС.
+Корень `/` создаётся автоматически. Пути абсолютные и уникальные,
+родительские каталоги перечисляются явно. Текст хранится в UTF-8,
+двоичные данные - в base64. Пустое содержимое допустимо.
+Исходный JSON только читается; изменения исчезают после перезапуска.
+В `examples/` есть `minimal.json`, `files.json` и `vfs.json`:
+пустой корень, несколько файлов и вложенность не менее трёх уровней.
+
+## Тесты и демонстрация
 
 ```sh
+make test
+sh scripts/demo-repl.sh
+sh scripts/demo-config.sh
 sh scripts/demo-vfs.sh
+sh scripts/demo-errors.sh
 ```
 
-Скрипт проверяет минимальную VFS, несколько файлов и вложенность
-не менее трёх уровней. Файлы: minimal.json, files.json, vfs.json.
+Без `make`: `PYTHONPATH=src python3 -m unittest discover -s tests -v`.
+В Windows: `set PYTHONPATH=src`, затем
+`python -m unittest discover -s tests -v`.
+Все 25 тестов прошли. Проверяются команды, аргументы, ошибки,
+загрузка VFS и сохранность исходного JSON после `mv` и `touch`.
+`examples/startup.txt` демонстрирует команды итоговой версии,
+`examples/errors.txt` - ошибки, `examples/load.txt` - загрузку VFS.
 
-## Команды и примеры
+## Исходники и функции
 
-- `exit`: завершить сеанс; аргументы запрещены.
-- `ls [путь]`: отсортированные прямые дети каталога или имя файла.
-- `cd [каталог]`: переход в каталог; без аргумента переход в /.
-- `tac файл [файл ...]`: строки каждого UTF-8 файла в обратном порядке.
-- `date [+формат]`: местные дата/время ОС; формат Python strftime.
-- `find [путь] [-name шаблон]`: рекурсивный поиск, включая исходный узел;
-  -name фильтрует имя по шаблону *, ? и []. По умолчанию путь равен .
+| Модуль | Назначение |
+| --- | --- |
+| `src/main.py` | `main`: чтение настроек, загрузка VFS и запуск оболочки |
+| `src/config.py` | `arguments`: параметры; `run_script`: исполнение скрипта |
+| `src/shell.py` | `parse`: разбор ввода; `Shell.__init__`: состояние и команды |
+| `Shell.prompt`, `repl` | Приглашение ОС и цикл интерактивного ввода |
+| `Shell.execute`, `stub`, `exit` | Выполнение, ошибки, заглушки и выход |
+| `src/commands.py` | `Commands.__init__`: связь с оболочкой и VFS |
+| `Commands.ls`, `cd`, `tac`, `date`, `find` | Основные команды |
+| `require_count`, `commands.install` | Проверка аргументов и регистрация команд |
+| `src/mutations.py` | `Mutations.__init__`, `touch`, `mv`: команды изменения VFS |
+| `mutations.install` | Регистрация `touch` и `mv` |
+| `src/vfs.py` | `normalize`: пути; `VFS.__init__`, `load`, `add`: загрузка узлов |
+| `VFS.decode`, `text` | Декодирование содержимого и чтение текста |
+| `VFS.node`, `directory`, `children` | Поиск узла, проверка и просмотр каталога |
+| `VFS.touch`, `move` | Создание, обновление времени и перенос узлов в памяти |
 
-Поддержаны абсолютные и относительные пути, . и ..; переход выше /
-оставляет пользователя в корне. tac выводит строки с обычным переводом
-строки; побайтовое поведение GNU tac для файлов без конечного переноса
-не воспроизводится. Другие параметры UNIX-команд не поддерживаются.
+В `tests/` находятся тесты, в `scripts/` - сценарии демонстрации.
+`run.sh`, `run.bat` и `Makefile` служат для запуска и тестирования.
+Временные и служебные файлы исключены через `.gitignore`.
 
-```text
-ls /docs
-a
-notes.txt
-tac /docs/notes.txt
-third
-second
-first
-find /docs -name *.txt
-/docs/a/b/c.txt
-/docs/notes.txt
-```
+## Этапы
 
-- `touch файл [файл ...]`: создать пустые файлы или обновить mtime
-  существующих узлов; содержимое сохраняется, родители должны существовать.
-- `mv источник назначение`: переименовать файл/каталог или переместить
-  в существующий каталог. Файл назначения может быть перезаписан.
-  Замена каталогов, перенос корня и перенос каталога внутрь себя запрещены.
-  Если перемещается текущий каталог или его предок, cwd обновляется.
+Каждый этап сохранён отдельным коммитом и в отдельном репозитории
+аккаунта `Dovlat060108`. Последний репозиторий содержит все этапы.
 
-```text
-touch /new.txt
-mv /new.txt /empty
-ls /empty
-new.txt
-```
-
-## Демонстрация ошибок
-
-```text
-unknown
-Ошибка: неизвестная команда: unknown
-exit extra
-Ошибка: использование: exit
-```
-
-`examples/errors.txt` содержит намеренные ошибки. Скрипт
-`demo-errors.sh` проверяет ожидаемый ненулевой код возврата.
-
-## Проверка
-
-При подготовке выполнено 25 автоматических тестов; все прошли.
-Тесты проверяют результаты команд, неверные аргументы и обработку ошибок.
-Отдельный тест сравнивает JSON до/после mv и touch и проверяет повторную загрузку.
-
-## Функции исходного кода
-
-- `commands.require_count`: Validate argument count and reject unsupported options.
-- `Commands.__init__`: Keep references to shell state and the loaded VFS.
-- `Commands.ls`: List directory children or the supplied file name.
-- `Commands.cd`: Change directory; no arguments return to the VFS root.
-- `Commands.tac`: Concatenate files with their line order reversed per file.
-- `Commands.date`: Show local OS date/time or one strftime format with + prefix.
-- `Commands.find`: Recursively list paths, optionally filtering by -name glob.
-- `commands.install`: Register the five fully implemented stage-four commands.
-- `config.arguments`: Parse VFS/script locations and an optional noninteractive mode.
-- `config.run_script`: Echo script commands, skip Python comments, report each error.
-- `main.main`: Initialize and run the current stage.
-- `Mutations.__init__`: Bind the shell and its VFS.
-- `Mutations.touch`: Create or timestamp one or more files, requiring parents.
-- `Mutations.mv`: Move one file or directory, updating cwd if its parent moves.
-- `mutations.install`: Register mv and touch.
-- `shell.parse`: Split a command by whitespace, without quotes or expansion.
-- `Shell.__init__`: Register the commands provided by the current stage.
-- `Shell.prompt`: Use the actual OS username and hostname in the prompt.
-- `Shell.execute`: Return success; display errors and keep the session usable.
-- `Shell.stub`: Validate prototype ls/cd arguments and show their values.
-- `Shell.exit`: Stop the current shell; exit accepts no arguments.
-- `Shell.repl`: Read commands until exit, EOF or keyboard interrupt.
-- `vfs.normalize`: Resolve relative paths and dot components from the VFS root.
-- `VFS.__init__`: Create an empty root directory.
-- `VFS.load`: Read and validate JSON without extracting or writing files.
-- `VFS.add`: Validate one unique node and decode optional base64 content.
-- `VFS.decode`: Decode UTF-8 text or strict base64, rejecting other formats.
-- `VFS.node`: Return a node or a readable missing-path error.
-- `VFS.directory`: Require an existing directory.
-- `VFS.children`: List sorted direct children only.
-- `VFS.text`: Read a UTF-8 file; binary and directory input are errors.
-- `VFS.touch`: Create an empty file or update an existing node timestamp.
-- `VFS.move`: Move/rename a subtree; overwrite files, never directories.
-
-## Структура
-
-- src/: исходный код, main.py - точка входа.
-- tests/: автоматические тесты unittest.
-- examples/: демонстрационные команды и данные.
-- scripts/: сценарии реальной ОС для демонстрации.
-- run.sh, run.bat, Makefile: запуск и тестирование.
-- .gitignore: исключение временных файлов и результатов сборки.
-
-PDF README предназначен для загрузки в СДО вместе с URL репозитория.
-PDF и архивы не добавляются в исходный git-репозиторий.
+| Репозиторий | Ветка | Содержание |
+| --- | --- | --- |
+| `mirea-config-v2-stage-1` | `stage-1` | REPL, парсер, заглушки ls/cd, exit |
+| `mirea-config-v2-stage-2` | `stage-2` | Параметры и стартовый скрипт |
+| `mirea-config-v2-stage-3` | `stage-3` | JSON VFS в памяти, base64 |
+| `mirea-config-v2-stage-4` | `stage-4` | ls, cd, tac, date, find |
+| `mirea-config-v2-stage-5` | `stage-5` | mv, touch и итоговая версия |
