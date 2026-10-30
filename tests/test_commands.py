@@ -65,3 +65,15 @@ class CommandTests(unittest.TestCase):
             for command in commands:
                 with self.subTest(command=command):
                     self.assertFalse(self.shell.execute(command))
+
+    def test_find_modes_and_boundaries(self):
+        """Default, relative and file roots must not include siblings."""
+        self.shell.vfs.add({"path": "/docs-other", "type": "dir"})
+        self.assertIn("/docs-other\n", self.output("find"))
+        self.assertNotIn("/docs-other\n", self.output("find /docs"))
+        self.output("cd /docs")
+        self.assertEqual(self.output("find . -name notes.txt"),
+                         "/docs/notes.txt\n")
+        self.assertEqual(self.output("find notes.txt"),
+                         "/docs/notes.txt\n")
+        self.assertEqual(self.output("find . -name absent*"), "")

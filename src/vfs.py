@@ -105,20 +105,36 @@ class VFS:
         node = self.node(source)
         if source == "/":
             raise ValueError("нельзя переместить корень")
-        if target in self.nodes and self.nodes[target]["type"] == "dir":
-            target = posixpath.join(target, posixpath.basename(source))
+        target = self._move_target(source, target)
         if source == target:
             return target
+        self._validate_move(source, target, node)
+        self._move_nodes(source, target)
+        return target
+
+    def _move_target(self, source, target):
+        """Append the source name when the destination is a directory."""
+        if target in self.nodes and self.nodes[target]["type"] == "dir":
+            return posixpath.join(target, posixpath.basename(source))
+        return target
+
+    def _validate_move(self, source, target, node):
+        """Reject invalid moves before any nodes are modified."""
         if target.startswith(source + "/"):
             raise ValueError("нельзя переместить каталог внутрь себя")
         self.directory(posixpath.dirname(target))
-        if target in self.nodes:
-            if node["type"] == "dir" or self.nodes[target]["type"] == "dir":
-                raise ValueError("нельзя заменить каталог")
+        destination = self.nodes.get(target)
+        if destination is None:
+            return
+        if node["type"] == "dir" or destination["type"] == "dir":
+            raise ValueError("нельзя заменить каталог")
+
+    def _move_nodes(self, source, target):
+        """Relocate the source subtree after all checks have passed."""
+        prefix = source + "/"
         moved = {name: value for name, value in self.nodes.items()
-                 if name == source or name.startswith(source + "/")}
+                 if name == source or name.startswith(prefix)}
         for name in moved:
             del self.nodes[name]
         for name, value in moved.items():
             self.nodes[target + name[len(source):]] = value
-        return target

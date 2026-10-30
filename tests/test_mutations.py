@@ -67,3 +67,32 @@ class MutationTests(unittest.TestCase):
         fresh = VFS.load(self.path)
         self.assertIn("/docs", fresh.nodes)
         self.assertNotIn("/temp.txt", fresh.nodes)
+
+    def test_rejected_moves_preserve_all_nodes(self):
+        """Invalid destinations must leave the complete VFS unchanged."""
+        from copy import deepcopy
+
+        before = deepcopy(self.shell.vfs.nodes)
+        commands = ("mv / /root", "mv /docs /docs/a",
+                    "mv /docs /binary.bin",
+                    "mv /docs/notes.txt /missing/new.txt")
+        for command in commands:
+            with self.subTest(command=command):
+                self.assertFalse(self.execute(command))
+                self.assertEqual(self.shell.vfs.nodes, before)
+
+    def test_move_overwrites_file_inside_directory(self):
+        """A directory target keeps the source basename when overwriting."""
+        self.assertTrue(self.execute("touch /empty/notes.txt"))
+        self.assertTrue(self.execute("mv /docs/notes.txt /empty"))
+        self.assertEqual(self.shell.vfs.text("/empty/notes.txt"),
+                         "first\nsecond\nthird\n")
+        self.assertNotIn("/docs/notes.txt", self.shell.vfs.nodes)
+
+    def test_move_same_file_is_unchanged(self):
+        """Moving a file onto itself succeeds without changing its data."""
+        from copy import deepcopy
+
+        before = deepcopy(self.shell.vfs.nodes)
+        self.assertTrue(self.execute("mv /binary.bin /binary.bin"))
+        self.assertEqual(self.shell.vfs.nodes, before)

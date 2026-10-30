@@ -7,6 +7,10 @@ import posixpath
 from vfs import normalize
 
 
+FIND_ARGUMENT_COUNTS = (0, 1, 3)
+FIND_FILTER_ARGUMENT_COUNT = 3
+
+
 def require_count(args, maximum, usage, minimum=0):
     """Validate argument count and reject unsupported options."""
     if not minimum <= len(args) <= maximum:
@@ -58,19 +62,30 @@ class Commands:
 
     def find(self, args):
         """Recursively list paths, optionally filtering by -name glob."""
-        if len(args) not in (0, 1, 3):
-            raise ValueError("использование: find [путь] [-name шаблон]")
-        if len(args) == 3 and args[1] != "-name":
-            raise ValueError("find: поддерживается только -name")
-        root = normalize(args[0] if args else ".", self.shell.cwd)
-        self.vfs.node(root)
-        pattern = args[2] if len(args) == 3 else "*"
-        names = sorted(name for name in self.vfs.nodes
-                       if name == root or name.startswith(root.rstrip("/")
-                                                         + "/"))
+        root, pattern = self._find_settings(args)
+        names = self._find_paths(root)
         return "\n".join(name for name in names
                          if fnmatch.fnmatchcase(posixpath.basename(name)
                                                or "/", pattern))
+
+    def _find_settings(self, args):
+        """Validate find arguments and resolve its root and pattern."""
+        count = len(args)
+        if count not in FIND_ARGUMENT_COUNTS:
+            raise ValueError("использование: find [путь] [-name шаблон]")
+        filtered = count == FIND_FILTER_ARGUMENT_COUNT
+        if filtered and args[1] != "-name":
+            raise ValueError("find: поддерживается только -name")
+        root = normalize(args[0] if args else ".", self.shell.cwd)
+        self.vfs.node(root)
+        pattern = args[2] if filtered else "*"
+        return root, pattern
+
+    def _find_paths(self, root):
+        """List the root and descendants without matching sibling names."""
+        prefix = root.rstrip("/") + "/"
+        return sorted(name for name in self.vfs.nodes
+                      if name == root or name.startswith(prefix))
 
 
 def install(shell):

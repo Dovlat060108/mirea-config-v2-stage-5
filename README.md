@@ -123,7 +123,7 @@ sh scripts/demo-errors.sh
 Без `make`: `PYTHONPATH=src python3 -m unittest discover -s tests -v`.
 В Windows: `set PYTHONPATH=src`, затем
 `python -m unittest discover -s tests -v`.
-Все 25 тестов прошли. Проверяются команды, аргументы, ошибки,
+Все 29 тестов прошли. Проверяются команды, аргументы, ошибки,
 загрузка VFS и сохранность исходного JSON после `mv` и `touch`.
 `examples/startup.txt` демонстрирует команды итоговой версии,
 `examples/errors.txt` - ошибки, `examples/load.txt` - загрузку VFS.
@@ -139,6 +139,7 @@ sh scripts/demo-errors.sh
 | `Shell.execute`, `stub`, `exit` | Выполнение, ошибки, заглушки и выход |
 | `src/commands.py` | `Commands.__init__`: связь с оболочкой и VFS |
 | `Commands.ls`, `cd`, `tac`, `date`, `find` | Основные команды |
+| `Commands._find_settings`, `_find_paths` | Аргументы и пути поиска |
 | `require_count`, `commands.install` | Проверка аргументов и регистрация команд |
 | `src/mutations.py` | `Mutations.__init__`, `touch`, `mv`: команды изменения VFS |
 | `mutations.install` | Регистрация `touch` и `mv` |
@@ -146,6 +147,7 @@ sh scripts/demo-errors.sh
 | `VFS.decode`, `text` | Декодирование содержимого и чтение текста |
 | `VFS.node`, `directory`, `children` | Поиск узла, проверка и просмотр каталога |
 | `VFS.touch`, `move` | Создание, обновление времени и перенос узлов в памяти |
+| `VFS._move_target`, `_validate_move`, `_move_nodes` | Подготовка, проверка и перенос |
 
 В `tests/` находятся тесты, в `scripts/` - сценарии демонстрации.
 `run.sh`, `run.bat` и `Makefile` служат для запуска и тестирования.
